@@ -15,35 +15,26 @@ using namespace std;
 #define SUBSTITUTION_COST 1.1
 #define TRANSPOSE_COST 2.0
 
-float calc_distance(string str1, string str2)
+float calcDistance(string str1, string str2)
 {
-    double d[str1.length()+1][str2.length()+1];
-    double l_cost;
+    double distance[str1.length()+1][str2.length()+1];
 
-    for (int i = 0; i <= str1.length(); i++)
-    {
-        d[i][0] = i;
+    for(int i = 0; i <= str1.length(); i++) {
+        distance[i][0] = i;
     }
-    for(int j = 0; j <= str2.length(); j++)
-    {
-        d[0][j] = j;
+
+    for(int j = 0; j <= str2.length(); j++) {
+        distance[0][j] = j;
     }
-    for (int i = 1; i <= str1.length(); i++)
-    {
-        for(int j = 1; j <= str2.length(); j++)
-        {
-            l_cost = str1[i-1] == str2[j-1] ? 0 : SUBSTITUTION_COST;
-            d[i][j] = min(d[i-1][j] + DELETE_COST, // delete
-                    min(d[i][j-1] + INSERT_COST, // insert
-                    d[i-1][j-1] + l_cost) // substitution
-            );
-            if( (i > 1) && (j > 1) && (str1[i-1] == str2[j-2]) && (str1[i-2] == str2[j-1]))
-            {
-                d[i][j] = min(d[i][j], d[i-2][j-2] + l_cost + 200); //transposition
-            }
+
+    for(int i = 1; i <= str1.length(); i++) {
+        for(int j = 1; j <= str2.length(); j++) {
+            double cost = str1[i-1] == str2[j-1] ? 0 : SUBSTITUTION_COST;
+            distance[i][j] = min(distance[i-1][j] + DELETE_COST, min(distance[i][j-1] + INSERT_COST, distance[i-1][j-1] + cost));
         }
     }
-    return d[str1.length()][str2.length()];
+
+    return distance[str1.length()][str2.length()];
 }
 
 string getSymb(const string &s) {
@@ -96,7 +87,7 @@ string getWord(const string &word, const map<int, vector<string>> &dic) {
         vector<string> dicPart = dic.find(j)->second;
         vector<string> sameNotes;
         for(int i = 0; i < dicPart.size(); ++i) {
-            double aux = calc_distance(deleteSymb(word), dicPart[i]);
+            double aux = calcDistance(deleteSymb(word), dicPart[i]);
             if(aux <= min) {
                 min = aux;
                 result = dicPart[i];
@@ -137,14 +128,4 @@ int main() {
         cout << endl;
     }
 }
-
-// PRINT MAP
-//    for(auto it = dictionary.cbegin(); it != dictionary.cend(); ++it)
-//    {
-//        cout << it->first << endl;
-//        for(int i = 0; i < it->second.size(); ++i) {
-//            cout <<  it->second[i] << ' ';
-//        }
-//        cout << endl;
-//    }
 
